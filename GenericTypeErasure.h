@@ -100,15 +100,15 @@ template<TypeErasureSetup setup>
 struct BaseTE {
  protected:
   template<typename TypeT>
-  BaseTE(TypeT&& shape)
+  BaseTE(TypeT&& value)
     requires(setup == TypeErasureSetup::Owning)
-      : mData{new std::remove_cvref_t<TypeT>(std::forward<TypeT>(shape)), createDeleter<std::remove_cvref_t<TypeT>>()},
+      : mData{new std::remove_cvref_t<TypeT>(std::forward<TypeT>(value)), createDeleter<std::remove_cvref_t<TypeT>>()},
         mDuplicator{createDuplicator<std::remove_cvref_t<TypeT>>()} {}
 
   template<typename TypeT>
-  BaseTE(TypeT& shape)
+  BaseTE(TypeT& value)
     requires(setup != TypeErasureSetup::Owning)
-      : mData{std::addressof(shape)}, mDuplicator{} {}
+      : mData{std::addressof(value)}, mDuplicator{} {}
 
   BaseTE(const BaseTE&)
     requires(setup != TypeErasureSetup::Owning)
@@ -169,20 +169,20 @@ struct BaseTE {
   using DuplicatorType =
       std::conditional_t<setup == TypeErasureSetup::Owning, FunctionPtr<DuplicatorSignature, noopDuplicator>, Nothing>;
 
-  template<typename ShapeT>
+  template<typename TypeT>
   static constexpr DuplicatorSignature createDuplicator()
     requires(setup == TypeErasureSetup::Owning)
   {
     return [](const OwningPtrType& ptr) {
-      return OwningPtrType{new ShapeT(*static_cast<ShapeT*>(ptr.get())), ptr.get_deleter()};
+      return OwningPtrType{new TypeT(*static_cast<TypeT*>(ptr.get())), ptr.get_deleter()};
     };
   }
 
-  template<typename ShapeT>
+  template<typename TypeT>
   static constexpr auto createDeleter()
     requires(setup == TypeErasureSetup::Owning)
   {
-    return [](const void* ptr) { delete static_cast<const ShapeT*>(ptr); };
+    return [](const void* ptr) { delete static_cast<const TypeT*>(ptr); };
   }
 
   UsedPtrType mData;
