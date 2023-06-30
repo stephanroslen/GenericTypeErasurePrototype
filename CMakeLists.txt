@@ -4,3 +4,5 @@ project(TEGen)
 set(CMAKE_CXX_STANDARD 23)
 
 add_executable(TEGen main.cpp Shape.h)
+
+add_compile_options(-Wall -Wextra -pedantic -Werror)
