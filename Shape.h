@@ -31,29 +31,23 @@ struct ShapeTECommon {
   using SetNameFreeFunctionSignature = void (*)(void*, std::string);
 
   template<typename ShapeT>
-  static DrawFunctionSignature createDrawFunction() {
-    static const DrawFunctionSignature fn{[](const void* ptr) { static_cast<const ShapeT*>(ptr)->draw(); }};
-    return fn;
+  static constexpr DrawFunctionSignature createDrawFunction() {
+    return [](const void* ptr) { static_cast<const ShapeT*>(ptr)->draw(); };
   }
 
   template<typename ShapeT>
-  static DrawFreeFunctionSignature createDrawFreeFunction() {
-    static const DrawFreeFunctionSignature fn{[](const void* ptr) { draw(*static_cast<const ShapeT*>(ptr)); }};
-    return fn;
+  static constexpr DrawFreeFunctionSignature createDrawFreeFunction() {
+    return [](const void* ptr) { draw(*static_cast<const ShapeT*>(ptr)); };
   }
 
   template<typename ShapeT>
-  static SetNameFunctionSignature createSetNameFunction() {
-    static const SetNameFunctionSignature fn{
-        [](void* ptr, std::string value) { static_cast<ShapeT*>(ptr)->setName(std::move(value)); }};
-    return fn;
+  static constexpr SetNameFunctionSignature createSetNameFunction() {
+    return [](void* ptr, std::string value) { static_cast<ShapeT*>(ptr)->setName(std::move(value)); };
   }
 
   template<typename ShapeT>
-  static SetNameFreeFunctionSignature createSetNameFreeFunction() {
-    static const SetNameFreeFunctionSignature fn{
-        [](void* ptr, std::string value) { setName(*static_cast<ShapeT*>(ptr), std::move(value)); }};
-    return fn;
+  static constexpr SetNameFreeFunctionSignature createSetNameFreeFunction() {
+    return [](void* ptr, std::string value) { setName(*static_cast<ShapeT*>(ptr), std::move(value)); };
   }
 
   TypeErasureDetail::Generic::FunctionPtr<DrawFunctionSignature> mDrawFunction;

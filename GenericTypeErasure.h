@@ -170,21 +170,19 @@ struct BaseTE {
       std::conditional_t<setup == TypeErasureSetup::Owning, FunctionPtr<DuplicatorSignature, noopDuplicator>, Nothing>;
 
   template<typename ShapeT>
-  static DuplicatorSignature createDuplicator()
+  static constexpr DuplicatorSignature createDuplicator()
     requires(setup == TypeErasureSetup::Owning)
   {
-    static const DuplicatorSignature fn{[](const OwningPtrType& ptr) {
+    return [](const OwningPtrType& ptr) {
       return OwningPtrType{new ShapeT(*static_cast<ShapeT*>(ptr.get())), ptr.get_deleter()};
-    }};
-    return fn;
+    };
   }
 
   template<typename ShapeT>
-  static auto createDeleter()
+  static constexpr auto createDeleter()
     requires(setup == TypeErasureSetup::Owning)
   {
-    static const auto fn{[](const void* ptr) { delete static_cast<const ShapeT*>(ptr); }};
-    return fn;
+    return [](const void* ptr) { delete static_cast<const ShapeT*>(ptr); };
   }
 
   UsedPtrType mData;
